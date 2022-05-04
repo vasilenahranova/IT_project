@@ -1,46 +1,49 @@
 ﻿#include<iostream>
 #include<cstring>
+#include<string>
 #include"User.h"
 #include<fstream>
+bool checkUserName(const std::string username) {
+	int length = username.length();
+	for (int i = 0; i < length; i++) {
+		if ((username[i]<'0' || (username[i]>'9') && username[i]<'A') || (username[i]>'Z' && username[i]<'a') || username[i]>'z') 
+		{
+			std::cout <<"Invalid username.It must include ONLY Latin letters and numbers!Try again!" << std::endl;
+			return false;
+		}
+	}
+	return true;
+}
+void inputUser(std::string& username, std::string& password, std::string& email) {
+	std::cout << "Enter username:"; std::cin >> username; 
+	while(!checkUserName(username)) {
+		std::cin >> username;
+	};
+	std::cout << "Enter password:"; std::cin >> password;
+	std::cout << "Enter email:"; std::cin >> email;
+}
+void inputTrip(std::string& destination,std::string& timeperiod, int& grade,std::string& comment) {
+	std::cout << "Enter name of your Destination:"; std::getline(std::cin, destination, '\n');
+	std::cout << "Enter the Time period:"; std::getline(std::cin, timeperiod, '\n');
+	std::cout << "Enter your Comment:"; std::getline(std::cin, comment, '\n');
+	std::cout << "Enter your grade:"; std::cin >> grade;
+}
 
 int main() {
-	User vassilena("vhranova", "vasihrannova@abv.bg", "vassilen3");
-	//std::cout << vassilena.getUserName() << " " << vassilena.getEmail() << " " << vassilena.getPassword() << std::endl;
-	
-	User* Array=new User[20];
-	for (int i = 0; i < 20; i++) {
-		Array[i] = vassilena;
+	std::string username, password, email;
+	inputUser(username, password, email);
+	User vassilena(username, password, email);
+	std::ofstream UsersFile("UsersFile.txt", std::ios::app);
+	if (UsersFile.is_open()) {
+		UsersFile << username << " " << password << " " << email << std::endl;
 	}
-	ListOfUsers List1(Array, 0, 20);
-	
-	int choice;
-	std::cout << "Make your choice:" << std::endl;
-	std::cout << "Press 1 for REGISTER" << std::endl;
-	std::cout << "Press 2 for LOGIN" << std::endl;
-	std::cin >> choice;
-	std::string username,password,email;
-	std::ofstream userlist("userlist.txt", std::ios::app);
-		if (choice == 1) {
-			std::cout << "Enter username" << std::endl;
-			std::cin >> username;
-			std::cout << "Enter password" << std::endl;
-			std::cin >> password;
-			std::cout << "Enter email" << std::endl;
-			std::cin >> email;
-			User newUser(username, password, email);
-			List1.AddUser(newUser);
-			std::cout << "ME";
-			/*if (userlist.is_open()) {
-				userlist << newUser.getUserName() << std::endl;
-				userlist << newUser.getEmail() << std::endl;
-				userlist << newUser.getPassword() << std::endl;
-			}
-			userlist.close();*/
-		}
-	if(choice==2){
-		//enter();
-		std::cout << "Still not ready";
-	}
-	return 0;
-	
+	UsersFile.close();
+	std::cout << vassilena.getUserName() << " " << vassilena.getEmail() << " " << vassilena.getPassword() << std::endl;
+
+	/*std::string destination,timeperiod,comment;
+	int grade;
+	inputTrip(destination, timeperiod, grade, comment);
+	Trip trip1(destination, timeperiod, grade, comment);
+	std::cout << trip1.getDestination() << " " << trip1.getTimeperiod() << " " << trip1.getGrade() << " " <<trip1.getComment() << std::endl;*/
+
 }

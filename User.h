@@ -5,45 +5,75 @@
 class Trip {
 private:
 	std::string Destination;
-	char Timeperiod[10];
+	std::string Timeperiod;
 	int Grade;
 	std::string Comment;
 	//how to insert field for image/array of images
 public:
-	//do I need a default constructor
-	//Trip() :Destination(0), Grade(2), Comment(0) {
-		//strcpy_s(Timeperiod, 10, 0);
-	//};
-	Trip(std::string destination, char timeperiod[], int grade, std::string comment):Destination(destination),Grade(grade),Comment(comment) {
-		strcpy_s(Timeperiod, 10, timeperiod);
+	Trip() : Destination("empty"),Timeperiod("empty"), Grade(0), Comment("Empty") {
+		//std::cout<<"I am the default constructor!"<<std::endl;
+	};
+	Trip(std::string destination, std::string timeperiod, int grade, std::string comment) :Destination(destination),Timeperiod(timeperiod), Grade(grade), Comment(comment) {
+		//std::cout<<"I am the constructor!"<<std::endl;
 	}
-	Trip(const Trip& other): Destination(other.Destination), Grade(other.Grade), Comment(other.Comment) {
-		strcpy_s(Timeperiod, 10, other.Timeperiod);
+	Trip(const Trip& other) : Destination(other.Destination), Timeperiod(other.Timeperiod), Grade(other.Grade), Comment(other.Comment) {
+		//std::cout<<"I am the copy constructor!"<<std::endl;
 	}
 	Trip& operator=(const Trip& other) {
+		//std::cout<<"I am the operator =!"<<std::endl;
 		if (this != &other) {
 			Destination = other.Destination;
+			Timeperiod = other.Timeperiod;
 			Grade = other.Grade;
 			Comment = other.Comment;
-			strcpy_s(Timeperiod, 10, other.Timeperiod);
 		}
 		return *this;
 	}
+	std::string getDestination() { return Destination; }
+	std::string getTimeperiod() {return Timeperiod;}
+	int getGrade() { return Grade; }
+	std::string getComment() { return Comment; }
+
 };
 class User {
 private:
 	std::string UserName;
-	std::string Email;
 	std::string Password;
+	std::string Email;
 	//Trip* TripList;
 public:
-	User():UserName("empty"), Email("empty"), Password("empty") {};
-	User(std::string userName, std::string email, std::string password) : UserName(userName), Email(email), Password(password) {};
-	User(const User& other):UserName(other.UserName), Email(other.Email), Password(other.Password) {};
+	User() :UserName("empty"), Password("empty"), Email("empty") {
+		// std::cout<<"Hi! I am the default constructor!"<<std::endl;
+	};
+	User(std::string username, std::string email, std::string password) : UserName(username), Password(password), Email(email) {
+		//std::cout<<"Hi! I am the parametric constructor!"<<std::endl;
+	};
+	User(const User& other) :UserName(other.UserName), Password(other.Password), Email(other.Email) {
+		//std::cout<<"Hi! I am the copy constructor!"<<std::endl;
+	};
+	User& operator=(const User& other) {
+		// std::cout<<"Hi!I am the operator =!"<<std::endl;
+		if (this != &other) {
+			setUserName(other.UserName);
+			setPassword(other.Password);
+			setEmail(other.Email);
+		}
+		return *this;
+	}
 
+	//setters
+	void setUserName(std::string username) {
+		this->UserName = username;
+	}
+	void setPassword(std::string password) {
+		this->Password = password;
+	}
+	void setEmail(std::string email) {
+		this->Email = email;
+	}
 	//getters
-	std::string getUserName() {return UserName;}
-	std::string getEmail() { return Email;}
+	std::string getUserName() { return UserName; }
+	std::string getEmail() { return Email; }
 	std::string getPassword() { return Password; }
 };
 class ListOfUsers {
