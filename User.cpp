@@ -17,3 +17,5 @@ void ListOfUsers::AddUser(const User& newUser){
 	List[Current] = newUser;
 	Current++;
 }
+
+

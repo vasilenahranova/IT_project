@@ -3,6 +3,7 @@
 #include<string>
 #include"User.h"
 #include<fstream>
+
 bool checkUserName(const std::string username) {
 	int length = username.length();
 	for (int i = 0; i < length; i++) {
@@ -87,7 +88,6 @@ bool checkAdditionalCondition(const int day1, const int month1, const int year1,
 	return true;
 }
 
-
 bool checkTimePeriod(const std::string timeperiod, const int day1, const int month1, const int year1, const int day2, const int month2, const int year2) {
 	//check if the string is in the right form2
 	if (timeperiod.size() != 21) return false;
@@ -103,7 +103,7 @@ bool checkTimePeriod(const std::string timeperiod, const int day1, const int mon
 
 }
 bool checkGrade(const int grade) {
-	return (grade > 0 && grade < 6);
+	return (grade>0 && grade < 7);
 }
 void inputUser(std::string& username, std::string& password, std::string& email) {
 	std::cout << "Enter username:"; std::cin >> username; 
@@ -132,20 +132,127 @@ void inputTrip(std::string& destination,std::string& timeperiod, unsigned int& g
 
 }
 
-int main() {
-	/*std::string username, password, email;
-	inputUser(username, password, email);
-	User vassilena(username, password, email);
-	std::ofstream UsersFile("UsersFile.txt", std::ios::app);
-	if (UsersFile.is_open()) {
-		UsersFile << username << " " << password << " " << email << std::endl;
+//functions for writing in/reading out of Files
+void readTripsFromBinaryFile(Trip*& trips, int& size, const std::string username) {
+	std::ifstream personalfile(username, std::ios::binary);
+	personalfile.seekg(0, std::ios::end);
+	size = personalfile.tellg() / sizeof(Trip);
+	trips = new Trip[size];
+	personalfile.seekg(0, std::ios::beg);
+	personalfile.read((char*)trips, size * (sizeof(Trip)));
+	personalfile.close();
+}
+void saveTripToBinaryFile(Trip trip1, const std::string username) {
+	/*if (!trip1) {
+		return;
+	}*/
+	std::ofstream personalFile(username, std::ios::binary);
+	personalFile.seekp(0, std::ios::end);
+	personalFile.write((char*)&trip1, sizeof(Trip));
+	personalFile.close();
+}
+void searchAllInformationAboutADestination(std::string) {
+	double Suma = 0, count = 0;
+	for (int i = 0; i < size; i++) {
+		if (currentUserTrip[i].getDestination() == chooseDestination) {
+			count++;
+			Suma += currentUserTrip[i].getGrade();
+		}
 	}
-	UsersFile.close();
-	std::cout << vassilena.getUserName() << " " << vassilena.getEmail() << " " << vassilena.getPassword() << std::endl;*/
+	for (int i = 0; i < size; i++) {
+		if (currentUserTrip[i].getDestination() == chooseDestination) {
+			std::cout << "The time period is " << currentUserTrip[i].getTimeperiod() << " " << "Their grade is " << currentUserTrip[i].getGrade() << " " << "Their comment is " << currentUserTrip[i].getComment() << std::endl;
+		}
+	}
+	if (count > 0)
+		std::cout << "The rate for this destination is " << Suma / count << std::endl;
+	else
+		std::cout << "There are no such trips!" << std::endl;
+}
+void readUsersFromBinaryFile(User*& users,int& size) {
+	std::ifstream UsersDataBase("UsersDataBase", std::ios::binary);
+	UsersDataBase.seekg(0, std::ios::end);
+	size = UsersDataBase.tellg() / sizeof(User);
+	users = new User[size];
+	UsersDataBase.seekg(0, std::ios::beg);
+	UsersDataBase.read((char*)users, size * (sizeof(User)));
+	UsersDataBase.close();
+}
+int main() {
+	int choice;
+	std::cout << "Make your choice:" << std::endl;
+	std::cout << "Press 1 for REGISTER" << std::endl;
+	std::cout << "Press 2 for LOGIN" << std::endl;
+	while (choice != 1 && choice != 2) {
+		std::cout << "Invalid command!" << std::endl;
+		std::cin >> choice;
+	}
+	std::string username, password, email;
+	if (choice == 1) {
+		//save the new user data into the whole DataBase
+		inputUser(username, password, email);
+		User vassilena(username, password, email);
+		std::ofstream UsersDataBase("UsersDataBase", std::ios::binary);
+		UsersDataBase.seekp(0, std::ios::end);
+		UsersDataBase.write((char*)&username, sizeof(username));
+		UsersDataBase.write((char*)&password, sizeof(password));
+		UsersDataBase.write((char*)&email, sizeof(email));
+		UsersDataBase.close();
 
-	std::string destination,timeperiod,comment;
-	unsigned int grade;
-	inputTrip(destination, timeperiod, grade, comment);
+		//create a new ownDataBase
+		std::fstream personalFile(username, std::ios::binary);
+
+		//choose next activity
+		int choice2;
+		std::cout << "Make your choice:" << std::endl;
+		std::cout << "Press 1 for REGISTER a new Trip!" << std::endl;
+		std::cout << "Press 2 for search of a definite destination!" << std::endl;
+		while (choice2 != 1 && choice2 != 2) {
+			std::cout << "Invalid command!" << std::endl;
+			std::cin >> choice2;
+		}
+		if (choice2 == 1) {
+			std::string destination, timeperiod, comment;
+			unsigned int grade;
+			inputTrip(destination, timeperiod, grade, comment);
+			Trip newTrip(destination, timeperiod, grade, comment);
+			saveTripToBinaryFile(newTrip, username);
+		}
+		if (choice2 == 2) {
+			//still not written function
+			std::string chooseDestination;
+			std::cout << "Enter destination: "; std::cin >> chooseDestination;
+			searchAllInformationAboutADestination(chooseDestination);
+		}
+	}
+	if (choice == 2) {
+		//I need to search through the DateBase and check if such user exists
+		int size = 0;
+		User* currentDataBase = nullptr;
+		readUsersFromBinaryFile(currentDataBase, size);
+		for (int i = 0; i < size; i++) {
+			if (currentDataBase[i].getUserName() == inputUserName) {
+				if (currentDataBase[i].getPassword() == inputPassword) {
+					std::fstream personalFile(inputUserName, std::ios::binary);
+					//call the function for choice2 again 
+				}
+			}
+		}
+
+	}
+	std::string destination = "Sofia", timeperiod = "23.12.2021-25.12.2022", comment = "This is very beautiful";
+	unsigned int grade = 4;
+	//inputTrip(destination, timeperiod, grade, comment);
 	Trip trip1(destination, timeperiod, grade, comment);
-	std::cout << trip1.getDestination() << " " << trip1.getTimeperiod() << " " << trip1.getGrade() << " " <<trip1.getComment() << std::endl;
+	destination = "Sofia", timeperiod = "23.12.2021-25.12.2022", comment = "This is beautiful", grade=5;
+	Trip trip2(destination, timeperiod, grade, comment);
+	Trip trips[] = { trip1,trip2 };
+	saveTripToBinaryFile(trip1, username);
+	
+	int size = 0;
+	Trip* currentUserTrip = nullptr;
+	readTripsFromBinaryFile(currentUserTrip, size,username);
+
+
+	
 }

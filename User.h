@@ -93,3 +93,63 @@ public:
 	void AddUser(const User& newUser);
 
 };
+class String {
+private:
+	unsigned int Size, Capacity;
+	char* myString;
+public:
+	//constructors
+	String() :myString(nullptr), Size(0), Capacity(strlen(myString)) {};
+	String(const char* myString0) {
+		Size = strlen(myString0);
+		Capacity = Size;
+		char* string = new char[Size + 1];
+		strcpy_s(this->myString, Size + 1, myString0);
+	}
+	String(const String& other) {
+		Size = strlen(other.myString);
+		Capacity = Size;
+		char* string = new char[Size + 1];
+		strcpy_s(this->myString, Size + 1, other.myString);
+	}
+	String& operator=(const String& other) {
+		if (this != &other) {
+			delete myString;
+
+			Size = other.size();
+			Capacity = Size;
+			myString = new char[Size];
+			strcpy_s(myString, Size + 1, other.myString);
+		}
+		return *this;
+	}
+	~String() { delete myString; }
+
+	//size functionality
+	int size() const;
+	int capacity() const;
+	int length() const;
+	void resize(unsigned int);
+	char at(unsigned int)const;
+	char back() const;
+	char front() const;
+
+	//modification functionality
+	String& operator+=(const char*);
+	String& operator+=(const char);
+	void push_back(char);
+	//void insert();
+	//void erase();
+	//void replase();
+	void swap(String& obj2);
+	void pop_back();
+
+	//operation functionalities
+	//check what is c_str();
+	/*char c_str() const;
+	char* substr() const;*/
+	friend std::ostream& operator<<(std::ostream& os, const String& obj1);
+	friend std::istream& operator>>(std::istream& is, const String& obj1);
+	friend String operator+(const String& obj1, const String& obj2);
+
+};
