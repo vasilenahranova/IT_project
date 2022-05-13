@@ -1,21 +1,8 @@
 #include "User.h"
 
-void ListOfUsers::Resize(){
-	int length = 2 * Capacity;
-	User* List1=new User[length];
-	for (int i = 0; i < length; i++) {
-		List1[i] = List[i];
-	}
-	delete[]List;
-	List = List1;
-	Capacity *= 2;
+std::ostream& operator<<(std::ostream& os, const User& obj1)
+{
+	std::cout << obj1.UserName << " " << obj1.Password << " " << obj1.Email << std::endl;
+	return os;
 }
-
-void ListOfUsers::AddUser(const User& newUser){
-	if (Current > Capacity)
-		Resize();
-	List[Current] = newUser;
-	Current++;
-}
-
 
