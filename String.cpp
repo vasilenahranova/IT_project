@@ -14,7 +14,8 @@ int String::length() const
 	return Size;
 }
 
-void String::resize(size_t capacity) {
+void String::resize(unsigned int capacity)
+{
 	char* helpString = new char[capacity];
 	strcpy_s(helpString, Size, myString);
 
@@ -22,7 +23,6 @@ void String::resize(size_t capacity) {
 	myString = helpString;
 	Size = capacity;
 }
-
 char String::at(unsigned int i) const
 {
 	if (i >= size())
@@ -68,6 +68,14 @@ void String::swap(String& obj2) {
 
 void String::pop_back() {
 	resize(Size--);
+}
+
+bool String::operator==(const String& obj1)
+{
+	if (strcmp(myString, obj1.myString) == 0)
+		return true;
+	else
+		return false;
 }
 
 std::ostream& operator<<(std::ostream& os, const String& obj1)

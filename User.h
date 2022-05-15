@@ -9,16 +9,12 @@ private:
 	String Email;
 public:
 	User() :UserName("empty"), Password("empty"), Email("empty") {
-		// std::cout<<"Hi! I am the default constructor!"<<std::endl;
 	};
 	User(String username, String email, String password) : UserName(username), Password(password), Email(email) {
-		//std::cout<<"Hi! I am the parametric constructor!"<<std::endl;
 	};
 	User(const User& other) :UserName(other.UserName), Password(other.Password), Email(other.Email) {
-		//std::cout<<"Hi! I am the copy constructor!"<<std::endl;
 	};
 	User& operator=(const User& other) {
-		// std::cout<<"Hi!I am the operator =!"<<std::endl;
 		if (this != &other) {
 			setUserName(other.UserName);
 			setPassword(other.Password);
@@ -26,7 +22,10 @@ public:
 		}
 		return *this;
 	}
-
+	
+	//save and read users
+	void saveUserToBinaryFile() const;
+	void readUserFromBinaryFile(User& User,int Index);
 	//setters
 	void setUserName(String username) {
 		this->UserName = username;

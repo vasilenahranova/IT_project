@@ -4,19 +4,6 @@
 #include"Trip.h"
 #include<fstream>
 
-
-bool checkUserName(String username) {
-	int length = username.length();
-	for (int i = 0; i < length; i++) {
-		if ((username.at(i)<'0' || (username.at(i) >'9') && username.at(i) <'A') || (username.at(i) >'Z' && username.at(i) <'a') || username.at(i) >'z')
-		{
-			std::cout <<"Invalid username.It must include ONLY Latin letters and numbers!Try again!" << std::endl;
-			return false;
-		}
-	}
-	return true;
-}
-
 //additional functions for the time period validation
 void shiftCharIntoInt(const char ch, int& i) {
 	if (ch == '0') i = 0;
@@ -90,11 +77,22 @@ bool checkAdditionalCondition(const int day1, const int month1, const int year1,
 }
 
 //validation functions
+bool checkUserName(String username) {
+	int length = username.length();
+	for (int i = 0; i < length; i++) {
+		if ((username.at(i) < '0' || (username.at(i) > '9') && username.at(i) < 'A') || (username.at(i) > 'Z' && username.at(i) < 'a') || username.at(i) > 'z')
+		{
+			std::cout << "Invalid username.It must include ONLY Latin letters and numbers!Try again!" << std::endl;
+			return false;
+		}
+	}
+	return true;
+}
 bool checkTimePeriod(String timeperiod, const int day1, const int month1, const int year1, const int day2, const int month2, const int year2) {
 	//check if the string is in the right form2
 	if (timeperiod.size() != 21) return false;
 	for (int i = 0; i < timeperiod.size(); i++) {
-		if ((timeperiod.at(i) < '0' || timeperiod.at(i)>'9') && timeperiod.at(i) != '.' && timeperiod.at(i) != '-')
+		if ((timeperiod.at(i) < '0' || timeperiod.at(i) > '9') && timeperiod.at(i) != '.' && timeperiod.at(i) != '-')
 			return false;
 	}
 	//check for the valid dates 
@@ -105,23 +103,24 @@ bool checkTimePeriod(String timeperiod, const int day1, const int month1, const 
 
 }
 bool checkGrade(const int grade) {
-	return (grade>0 && grade < 7);
+	return (grade > 0 && grade < 7);
 }
+//input functions
 void inputUser(String& username, String& password, String& email) {
-	std::cout << "Enter username:"; std::cin >> username; 
+	std::cout << "Enter username(contains only letters and digits):"; std::cin >> username; 
 	while(!checkUserName(username)) {
 		std::cin >> username;
 	};
 	std::cout << "Enter password:"; std::cin >> password;
 	std::cout << "Enter email:"; std::cin >> email;
 }
-void inputTrip(String& destination,String& timeperiod, unsigned int& grade,String& comment) {
+void inputTrip(String& destination,String& timeperiod, unsigned int& grade,String& comment,String&photo) {
 	std::cout << "Enter name of your Destination:"; std::cin>>destination;
-	std::cout << "Enter the Time period:"; std::cin>>timeperiod;
+	std::cout << "Enter the Time period(Format:DD.MM.YYYY-DD.MM.YYYY):"; std::cin>>timeperiod;
 	int day1, month1, year1, day2, month2, year2;
 	transformTimePeriod(timeperiod, day1, month1, year1, day2, month2, year2);
 	while (!checkTimePeriod(timeperiod, day1, month1, year1, day2, month2, year2)) {
-		std::cout << "Invalid input for timeperiod!" << std::endl;
+		std::cout << "Invalid input for timeperiod!It must be in the format DD.MM.YYYY-DD.MM.YYYY and the second date must be larger than the first!" << std::endl;
 		std::cin >> timeperiod;
 		std::cin.ignore();
 		transformTimePeriod(timeperiod, day1, month1, year1, day2, month2, year2);
@@ -133,27 +132,9 @@ void inputTrip(String& destination,String& timeperiod, unsigned int& grade,Strin
 		std::cout << "Invalid grade! It must be an integer number between 1 and 6! " << std::endl;
 		std::cin >> grade;
 	}
+	std::cin.ignore();
+	std::cout << "Enter your PhotoName:"; std::cin >> photo;
 
-}
-void readTripsFromBinaryFile(Trip* trips, size_t& size, char* username) {
-	std::ifstream personalFile(username, std::ios::binary);
-	personalFile.seekg(0, std::ios::end);
-	size = personalFile.tellg() / sizeof(Trip);
-	trips = new Trip[size];
-	personalFile.seekg(0, std::ios::beg);
-	for (int i = 0; i < size; i++) {
-		personalFile.read((char*)&trips[i], sizeof(Trip));
-	}
-	personalFile.close();
-	std::cout << "I am ready!" << std::endl;
-	std::cout << size << std::endl;
-}
-//writing in/reading out of Trip File
-void saveTripToBinaryFile(Trip trip1, char* username) {
-	std::ofstream personalFile(username, std::ios::binary | std::ios::app | std::ios::ate);
-	//personalFile.seekp(0, std::ios::end);
-	personalFile.write((char*)&trip1, sizeof(Trip));
-	personalFile.close();
 }
 
 //choices functions
@@ -177,121 +158,125 @@ void secondChoice(int& choice2) {
 		std::cin >> choice2;
 	}
 }
-//readingUsersFile
-void readUsersFromBinaryFile(User* &users,size_t& size) {
-	std::ifstream UsersDataBase("UsersDataBase", std::ios::binary);
-	UsersDataBase.seekg(0, std::ios::end);
-	size = UsersDataBase.tellg() / sizeof(User);
-	users = new User[size];
-	UsersDataBase.seekg(0, std::ios::beg);
-	for(size_t i =  0; i < size; i++)
-		UsersDataBase.read((char*)&users[i], sizeof(User));
-	UsersDataBase.close();
-}
-//searchByDestination functions
-void searchByDestination(String destination, char* username) {
-	size_t size1 = 0;
-	Trip* trips = nullptr;
-	readTripsFromBinaryFile(trips, size1, username);
-	std::cout << size1;
-	for (unsigned int i = 0; i < size1; i++) {
-		std::cout << "I am in the loop of trips for concrete user!"<<std::endl;
-		//std::cout << trips[i].gettimeperiod() << std::endl;
-		/*if (trips[i].getdestination() == destination) {
-			std::cout << "timeperiod: " << trips[i].gettimeperiod() << " grade: " << trips[i].getgrade() << " comment: " << trips[i].getcomment() << std::endl;
-		}*/
-	}
-}
-/*void searchByDestinationGeneral() {
-	String username;
+
+//searchByDestination and average grade function
+void searchByDestinationGeneral() {
+	//enter destination for search
 	String destination1;
 	std::cout << "Enter destination: "; std::cin >> destination1;
 
-	size_t size = 0;
-	User* currentDataBase = nullptr;
-	readUsersFromBinaryFile(currentDataBase, size);
+	double srednaOcenka = 0;
+	int counter = 0;
+	//extracts users from the file and put them into User array
+	std::ifstream UsersDataBase("UsersDataBase", std::ios::binary);
+	UsersDataBase.seekg(0, std::ios::end);
+	size_t size = UsersDataBase.tellg() / sizeof(User);
+	User* currentDataBase = new User[size];
 	for (int i = 0; i < size; i++) {
-		username = currentDataBase[i].getUserName();
-		std::cout << "I am in the loop of Users!" << std::endl;
-		//std::ifstream mypersonalfile(username, std::ios::binary);
-		searchByDestination(destination1, username);
+		User user;
+		user.readUserFromBinaryFile(user, i);
+		currentDataBase[i] = user;
 	}
+	for (int i = 0; i < size; i++) {
+		const char* username1 = currentDataBase[i].getUserName().getmyString();
+		std::ifstream personalFile(username1, std::ios::binary);
+		personalFile.seekg(0, std::ios::end);
+		size_t size1 = UsersDataBase.tellg() / sizeof(User);
+		Trip* currentTripsDataBase = new Trip[size1];
+		for (int k = 0; k < size1; k++) {
+			Trip trip;
+			trip.readTripsFromBinaryFile(trip, i,username1);
+			currentTripsDataBase[i] = trip;
+		}
 
-}*/
+		for (int j = 0; j < size1; j++) {
+			if (currentTripsDataBase[i].getDestination() == destination1) {
+				std::cout<<currentTripsDataBase[i];
+				srednaOcenka+= currentTripsDataBase[i].getGrade();
+				counter++;
+			}
+		}
+		delete[]currentDataBase;
+		delete[]currentTripsDataBase;
+	}
+	if (counter != 0) {
+		srednaOcenka /= counter;
+		std::cout << "The average grade of this destination is: " << srednaOcenka << std::endl;
+	}
+	else
+		std::cout << "There is no such destination, visited by our Users!"<<std::endl;
+}
 int main() {
 	int choice=0;
 	firstChoice(choice);
+
 	String username, password, email;
 	if (choice == 1) {
 		//save the new user data into the whole DataBase
 		std::cin.ignore();
 		inputUser(username, password, email);
-		User vassilena(username, password, email);
-		std::cout << vassilena << std::endl;
-		std::ofstream UsersDataBase("UsersDataBase", std::ios::binary | std::ios::app | std::ios::ate);
-		UsersDataBase.write((const char *)&vassilena, sizeof(vassilena));
-		UsersDataBase.close();
-		////create a new ownDataBase
-		////transform into username.myString char[]
-		//char* username1 = username.getmyString();
-		//std::fstream personalFile(username1, std::ios::binary);
-
-		////choose next activity
-		//int choice2=0;
-		//secondChoice(choice2);
-		//std::cin.ignore();
-		//if (choice2 == 1) {
-		//	String destination, timeperiod, comment;
-		//	unsigned int grade;
-		//	inputTrip(destination, timeperiod, grade, comment);
-		//	Trip newTrip(destination, timeperiod, grade, comment);
-		//	saveTripToBinaryFile(newTrip, username1);
-		//}
-		//if (choice2 == 2)
-		//	searchByDestinationGeneral();
+		User user(username, password, email);
+		user.saveUserToBinaryFile();
+		
+		//choose next activity
+		int choice2=0;
+		secondChoice(choice2);
+		std::cin.ignore();
+		if (choice2 == 1) {
+			String destination, timeperiod, comment,photo;
+			unsigned int grade;
+			inputTrip(destination, timeperiod, grade, comment,photo);
+			Trip newtrip(destination, timeperiod, grade, comment,photo);
+			//transform into username.myString char[]
+			const char* username1 = username.getmyString();
+			newtrip.saveTripsToBinaryFile(username1);
+			delete[] username1;
+		}
+		if (choice2 == 2)
+			searchByDestinationGeneral();
 	}
-	//if (choice == 2) {
-	//	//I need to search through the DateBase and check if such user exists
-	//	String inputUserName, inputPassword;
-	//	std::cout << "Enter Username:"; std::cin >> inputUserName;
-	//	std::cout << "Enter Password:"; std::cin >> inputPassword;
+	if (choice == 2) {
+		//I need to search through the DateBase and check if such user exists
+		String inputUserName, inputPassword;
+			std::cout << "Enter Username:"; std::cin >> inputUserName;
+			std::cout << "Enter Password:"; std::cin >> inputPassword;
+		//read Users from the file and put them in an User array
+		std::ifstream UsersDataBase("UsersDataBase", std::ios::binary);
+		UsersDataBase.seekg(0, std::ios::end);
+		size_t size = UsersDataBase.tellg() / sizeof(User);
+		User* currentDataBase = new User[size];
+		for (int i = 0; i < size; i++) {
+			User user;
+			user.readUserFromBinaryFile(user, i);
+			currentDataBase[i] = user;
+		}
+		bool check = false;
+		for (int i = 0; i < size; i++) {
+			if (currentDataBase[i].getUserName() == inputUserName) {
+				std::cout << "Valid username"<<std::endl;
+				if (currentDataBase[i].getPassword() == inputPassword) {
+					int choice2 = 0;
+					secondChoice(choice2);
+					std::cin.ignore();
+					if (choice2 == 1) {
+						String destination, timeperiod, comment,photo;
+						unsigned int grade;
+						inputTrip(destination, timeperiod, grade, comment,photo);
+						Trip newTrip(destination, timeperiod, grade, comment,photo);
+						const char *inputUserName1 = inputUserName.getmyString();
+						newTrip.saveTripsToBinaryFile(inputUserName1);	
+						delete[]inputUserName1;
+					}
+					if (choice2 == 2)
+						searchByDestinationGeneral();
+					check = true;
+				}
+			}
+		}
+		delete[]currentDataBase;
 
-	//	size_t size = 0;
-	//	User* currentDataBase = nullptr;
-	//	readUsersFromBinaryFile(currentDataBase, size);
-	//	bool check = false;
-	//	for (int i = 0; i < size; i++) {
-	//		if (currentDataBase[i].getUserName() == inputUserName) {
-	//			std::cout << "Valid username"<<std::endl;
-	//			if (currentDataBase[i].getPassword() == inputPassword) {
-	//				int choice2 = 0;
-	//				secondChoice(choice2);
-	//				std::cin.ignore();
-	//				if (choice2 == 1) {
-	//					String destination, timeperiod, comment;
-	//					unsigned int grade;
-	//					inputTrip(destination, timeperiod, grade, comment);
-	//					Trip newTrip(destination, timeperiod, grade, comment);
-	//					char *inputUserName1 = inputUserName.getmyString();
-	//					saveTripToBinaryFile(newTrip, inputUserName1);
-	//					std::cout << "I am the new trip which was saved in my database!" << std::endl;
-	//					
-	//					size_t size = 0;
-	//					Trip* trips = nullptr;
-	//					readTripsFromBinaryFile(trips,size,inputUserName1);
-	//					//here is the main part which is not working
-	//					for (int i = 0; i < 3; i++) {
-	//						std::cout << trips[i].getTimeperiod();
-	//					}
-	//					delete[] trips;
-	//				}
-	//				if (choice2 == 2)
-	//					searchByDestinationGeneral();
-	//				check = true;
-	//			}
-	//		}
-	//	}
-	//	if(!check)
-	//		std::cout << "There is no such user! Invalid username or password!" << std::endl;
-	//}
+		if(!check)
+			std::cout << "There is no such user! Invalid username or password!" << std::endl;
+	}
+	return 0;
 }

@@ -34,7 +34,6 @@ public:
 
 	//size functionality
 	int size() const;
-	int capacity() const;
 	int length() const;
 	void resize(unsigned int);
 	char at(unsigned int)const;
@@ -51,12 +50,11 @@ public:
 	void swap(String& obj2);
 	void pop_back();
 
-	char* getmyString() { return myString; }
+	const char* getmyString()const  {
+		return &myString[0]; 
+	}
 
-	//operation functionalities
-	//check what is c_str();
-	/*char c_str() const;
-	char* substr() const;*/
+	bool operator==(const String& obj1);
 	friend std::ostream& operator<<(std::ostream& os, const String& obj1);
 	friend std::istream& operator>>(std::istream& is, String& obj1);
 	friend String operator+(const String& obj1, const String& obj2);
